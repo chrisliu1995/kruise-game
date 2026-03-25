@@ -315,6 +315,11 @@ func (n *NodePortPlugin) OnPodUpdated(client client.Client, pod *corev1.Pod, ctx
 	}
 
 	// network ready
+	if pod.Spec.NodeName == "" {
+		logger.V(1).Info("Pod not scheduled yet for NodePort, skip getting node", telemetryfields.FieldService, serviceKey)
+		return pod, nil
+	}
+
 	node := &corev1.Node{}
 	err = client.Get(ctx, types.NamespacedName{
 		Name: pod.Spec.NodeName,
